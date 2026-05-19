@@ -4,8 +4,8 @@
 const mongoose = require('mongoose')
 const logger = require('../utils/logger')
 
-// 获取MongoDB连接地址，默认连接到本地的yuexiaoquan数据库
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/yuexiaoquan'
+// 获取MongoDB连接地址
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://1939046207_db_user:chyjzbcdadbb1@yuexiaoquan.52k8zgs.mongodb.net/yuexiaoquan?retryWrites=true&w=majority&appName=yuexiaoquan'
 
 /**
  * 连接数据库函数

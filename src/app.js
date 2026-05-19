@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true }))
 
 // ✅ 临时安全 session（不依赖 connect-mongo，绝对不报错）
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'default_secret_123456',
+  secret: process.env.SESSION_SECRET || 'yxq-prod-k8m2x9p',
   resave: false,
   saveUninitialized: false,
   cookie: {
