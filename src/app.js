@@ -8,7 +8,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const session = require('express-session')
-const { MongoStore } = require('connect-mongo')
+const MongoStore = require('connect-mongo') // ✅ 修复这里
 const path = require('path')
 
 // 导入模块
@@ -32,20 +32,23 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/yuexia
 
 // 中间件
 app.use(requestLogger)
+
+// ✅ 修复 CORS，允许所有域名（线上必须）
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
+  origin: true,
   credentials: true
 }))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// ✅ 修复 session + connect-mongo 正确写法
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'default_secret_key',
   resave: false,
   saveUninitialized: false,
-  store: new MongoStore({
-    mongoUrl: MONGODB_URI,
-    ttl: 7 * 24 * 60 * 60,
-    autoRemove: 'native'
+  store: MongoStore.create({
+    mongoUrl: MONGODB_URI
   }),
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -55,20 +58,19 @@ app.use(session({
   }
 }))
 
-// 静态文件 - 上传的图片
+// 静态文件
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
-// API路由 - 统一前缀为/api
+// API路由
 app.use('/api', routes)
 
-// 404 处理
+// 404
 app.use(notFound)
 
-// 全局错误处理
+// 错误处理
 app.use(errorHandler)
 
-// 启动服务器
-app.listen(PORT, () => {
-  logger.info(`🚀 服务器运行在 http://localhost:${PORT}`)
-  logger.info(`📚 API文档: http://localhost:${PORT}/api/health`)
+// ✅ 修复监听 0.0.0.0（线上必须）
+app.listen(PORT, '0.0.0.0', () => {
+  logger.info(`🚀 服务器运行在端口 ${PORT}`)
 })
