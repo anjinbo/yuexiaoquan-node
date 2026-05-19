@@ -8,7 +8,6 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const session = require('express-session')
-const MongoStore = require('connect-mongo') // ✅ 修复这里
 const path = require('path')
 
 // 导入模块
@@ -27,13 +26,9 @@ const PORT = process.env.PORT || 8000
 // 连接数据库
 connectDB()
 
-// MongoDB 连接地址
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/yuexiaoquan'
-
 // 中间件
 app.use(requestLogger)
 
-// ✅ 修复 CORS，允许所有域名（线上必须）
 app.use(cors({
   origin: true,
   credentials: true
@@ -42,14 +37,11 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// ✅ 修复 session + connect-mongo 正确写法
+// ✅ 临时安全 session（不依赖 connect-mongo，绝对不报错）
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'default_secret_key',
+  secret: process.env.SESSION_SECRET || 'default_secret_123456',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: MONGODB_URI
-  }),
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
@@ -70,7 +62,7 @@ app.use(notFound)
 // 错误处理
 app.use(errorHandler)
 
-// ✅ 修复监听 0.0.0.0（线上必须）
+// ✅ 线上必须监听 0.0.0.0
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`🚀 服务器运行在端口 ${PORT}`)
 })
